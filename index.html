@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paste2Device</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #f5f5f5;
+      padding: 1rem;
+    }
+    input, textarea, button {
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      width: 100%;
+      max-width: 400px;
+      font-size: 1rem;
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+</head>
+<body>
+  <h2>Paste2Device</h2>
+  <input type="text" id="codeInput" placeholder="Enter or Create Code (e.g., AB12)" />
+  <textarea id="messageBox" rows="10" placeholder="Type message here..."></textarea>
+  <button onclick="startSync()">Connect</button>
+
+  <script>
+    // Firebase config (replace this with your own config later)
+    const firebaseConfig = {
+      apiKey: "AIzaSy...",
+      authDomain: "your-app.firebaseapp.com",
+      databaseURL: "https://your-app.firebaseio.com",
+      projectId: "your-app",
+      storageBucket: "your-app.appspot.com",
+      messagingSenderId: "...",
+      appId: "..."
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function startSync() {
+      const code = document.getElementById("codeInput").value.trim();
+      if (!code) return alert("Please enter a code");
+
+      const ref = db.ref("pastes/" + code);
+
+      const box = document.getElementById("messageBox");
+
+      // Send text
+      box.addEventListener("input", () => {
+        ref.set(box.value);
+      });
+
+      // Listen for changes
+      ref.on("value", (snapshot) => {
+        const data = snapshot.val();
+        if (data !== box.value) {
+          box.value = data || "";
+        }
+      });
+    }
+  </script>
+</body>
+</html>
